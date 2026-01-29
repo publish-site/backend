@@ -8,8 +8,7 @@ RUN cargo build --release
 FROM nginx:stable
 
 COPY --from=builder /app/target/release/backend /usr/local/bin/backend
+COPY docker-entrypoint.sh / 
+EXPOSE 80
 
-EXPOSE 8080
-
-CMD ["backend"]
-
+ENTRYPOINT bash /docker-entrypoint.sh
