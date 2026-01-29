@@ -1,0 +1,9 @@
+services:
+  deploy-server:
+    image: backend
+    ports: 
+      - "80:80"
+    environment:
+      PORT:    80
+      API_URL: "localhost.rvid.eu"
+      WEB_URL: "a.rvid.eu" # optional
