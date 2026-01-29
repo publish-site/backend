@@ -11,5 +11,5 @@ COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 
 EXPOSE 8080
 
-CMD ["app"]
+CMD ["backend"]
 
