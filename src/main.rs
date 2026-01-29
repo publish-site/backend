@@ -7,7 +7,7 @@ use std::{
     env
 };
 
-const VERSION: &str = "Pre-release";
+const VERSION: &str = "PRE01";
 
 fn main() {
     let port: u16 = env::var("PORT")
@@ -15,12 +15,16 @@ fn main() {
         .and_then(|v| v.parse::<u16>().ok())
         .unwrap_or(7878);
 
-    println!("Backend Deployment Service");
-    println!("Version: {VERSION}");
-    println!("URL: 127.0.0.1:{port}");
+    let threads: u8 = env::var("THREADS")
+        .ok()
+        .and_then(|v| v.parse::<u8>().ok())
+        .unwrap_or(4);
+
+    println!("Backend Deployment Service v{VERSION}");
 
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    let pool = ThreadPool::new(4);
+    let pool = ThreadPool::new(threads.into());
+    println!("Server started listening on: 127.0.0.1:{port} | Running on {threads} threads");
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
