@@ -3,10 +3,22 @@ use std::{
     io::{BufReader, prelude::*},
     net::{TcpListener, TcpStream},
     thread,
-    time::Duration
+    time::Duration,
+    env
 };
 
+const VERSION: &str = "Pre-release";
+
 fn main() {
+    let port: u16 = env::var("PORT")
+        .ok()
+        .and_then(|v| v.parse::<u16>().ok())
+        .unwrap_or(7878);
+
+    println!("Backend Deployment Service");
+    println!("Version: {VERSION}");
+    println!("URL: 127.0.0.1:{port}");
+
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let pool = ThreadPool::new(4);
 
