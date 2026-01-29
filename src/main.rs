@@ -22,7 +22,7 @@ fn main() {
 
     println!("Backend Deployment Service v{VERSION}");
 
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
     let pool = ThreadPool::new(threads.into());
     println!("Server started listening on: 127.0.0.1:{port} | Running on {threads} threads");
 
