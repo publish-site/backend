@@ -6,6 +6,7 @@ COPY src ./src
 RUN cargo build --release 
 
 FROM nginx:stable
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 COPY docker-entrypoint.sh / 

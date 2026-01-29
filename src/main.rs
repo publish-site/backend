@@ -10,7 +10,7 @@ use std::{
 const VERSION: &str = "PRE01";
 
 fn main() {
-    let port: u16 = env::var("PORT")
+    let port: u16 = env::var("API_PORT")
         .ok()
         .and_then(|v| v.parse::<u16>().ok())
         .unwrap_or(7878);
