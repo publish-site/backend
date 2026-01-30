@@ -48,10 +48,13 @@ fn handle_connection(mut stream: TcpStream) {
     println!("{request:?}");
 
     let (status_line, contents) = if request_line.starts_with("PUT ") {
+        let content_length: usize = header_value("Content-Length", request.clone()).parse().expect("No contents found.");
+
         let mut assembled: String = Default::default();
-        for i in 0..30 {
+        for i in 0..content_length/78 {
             assembled += &request[i+6];
         };
+
         println!("Assembled data: {assembled}");
         ("HTTP/1.1 200 OK", "OK")
     } else if request_line.starts_with("SLEEP ") {
@@ -67,4 +70,15 @@ fn handle_connection(mut stream: TcpStream) {
         "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}"
     );
     stream.write_all(response.as_bytes()).unwrap();
+}
+
+fn header_value(header: &str, request: Vec<String>) -> String {
+    let mut rq: String = Default::default();
+    let head = format!("{header}: ");
+    for i in 0..request.len() {
+        if request[i].starts_with(&head) {
+            rq = String::from(request[i].split(':').nth(1).unwrap_or("").trim_start());
+        }
+    }
+    return rq;
 }
