@@ -39,9 +39,15 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&stream);
-    let request_line: String = buf_reader.lines().next().unwrap().unwrap();
+    let request: Vec<_> = buf_reader
+        .lines()
+        .map(|result| result.unwrap())
+        .take_while(|line| !line.is_empty())
+        .collect();
+    let request_line: &String = &request[0];
+    println!("{request:?}");
 
-    let (status_line, contents) = if request_line.starts_with("POST ") {
+    let (status_line, contents) = if request_line.starts_with("PUT ") {
         ("HTTP/1.1 200 OK", "OK")
     } else if request_line.starts_with("SLEEP ") {
         thread::sleep(Duration::from_secs(5));
