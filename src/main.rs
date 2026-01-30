@@ -42,12 +42,17 @@ fn handle_connection(mut stream: TcpStream) {
     let request: Vec<_> = buf_reader
         .lines()
         .map(|result| result.unwrap())
-        .take_while(|line| !line.is_empty())
+        //.take_while(|line| !line.is_empty())
         .collect();
     let request_line: &String = &request[0];
     println!("{request:?}");
 
     let (status_line, contents) = if request_line.starts_with("PUT ") {
+        let mut assembled: String = Default::default();
+        for i in 0..30 {
+            assembled += &request[i+6];
+        };
+        println!("Assembled data: {assembled}");
         ("HTTP/1.1 200 OK", "OK")
     } else if request_line.starts_with("SLEEP ") {
         thread::sleep(Duration::from_secs(5));
