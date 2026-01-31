@@ -1,6 +1,6 @@
 services:
   deploy-server:
-    image: backend
+    image: ghcr.io/publish-site/backend:latest
     ports: 
       - "443:443"
     environment:
