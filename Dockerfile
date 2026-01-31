@@ -1,5 +1,5 @@
 # build app 
-FROM rust as builder
+FROM rust:nightly as builder
 WORKDIR /app
 COPY Cargo.toml ./
 COPY src ./src
