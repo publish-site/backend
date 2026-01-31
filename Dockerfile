@@ -11,7 +11,8 @@ RUN mkdir /var/www/html -p
 RUN chown -R nginx:nginx /var/www
 
 COPY --from=builder /app/target/release/backend /usr/local/bin/backend
-COPY docker-entrypoint.sh / 
+COPY docker-entrypoint.sh /
+COPY config.conf /etc/nginx/conf.d 
 EXPOSE 80
 
 ENTRYPOINT bash /docker-entrypoint.sh
