@@ -6,9 +6,9 @@ This is the backend part of the https://github.com/publish-site/action workflow.
 
 ## Project
 
-[Quick start guide](#quick-start-guide)
-[TO-DO](#to-do)
-[Credits](#credits)
+[Quick start guide](#quick-start-guide)  
+[TO-DO](#to-do)  
+[Credits](#credits)  
 
 ## Quick-start guide
 
