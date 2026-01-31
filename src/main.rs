@@ -82,18 +82,25 @@ fn handle_connection(mut stream: TcpStream, path: String, c: Color) {
             for i in 0..chunks {
                 assembled += &request[i+6];
             };
+
+            const TEMPDIR: &str = "/tmp/backend-action";
+            fs::DirBuilder::new()
+                .recursive(true)
+                .create(TEMPDIR).unwrap();
             
-            fs::write("/tmp/site.tar.gz.b64", assembled);
+            fs::write(format!("{TEMPDIR}/site.tar.gz.b64"), assembled);
             Command::new("bash")
-                .args(["-c", format!("base64 -d /tmp/site.tar.gz.b64 > /tmp/site.tar.gz").as_str()])
+                .args(["-c", format!("base64 -d {TEMPDIR}/site.tar.gz.b64 > {TEMPDIR}/site.tar.gz").as_str()])
                 .output()
                 .expect("failed to execute process");
 
-            let file = fs::File::open("/tmp/site.tar.gz").unwrap();
+            let file = fs::File::open(format!("{TEMPDIR}/site.tar.gz")).unwrap();
             let file = BufReader::new(file);
             let file = GzDecoder::new(file);
             let mut arc = Archive::new(file);
-            arc.unpack(path);
+
+            arc.unpack(path.clone());
+            println!("{}Writing to {}{path}{}", c.cyan, c.red, c.reset);
         }
         let agent = header_value("User-Agent", request.clone());
         println!("{}User Agent{}: {agent}", c.cyan, c.reset);
