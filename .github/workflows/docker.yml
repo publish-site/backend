@@ -5,10 +5,12 @@ on:
     branches:
       - master
 
+permissions:
+  packages: write
+  contents: read
+  
 jobs:
   build-and-push:
-    permissions:
-      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
