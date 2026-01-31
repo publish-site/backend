@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  packages: write
+  contents: read
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -19,24 +23,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.repository }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Build and Push
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: ${{ github.repository_owner }}/backend:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-        
-      - name: Move cache for next build
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
