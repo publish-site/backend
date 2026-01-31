@@ -1,13 +1,17 @@
 use backend::ThreadPool;
 use std::{
-    io::{BufReader, prelude::*},
+    io::{BufReader, prelude::*, IsTerminal},
     net::{TcpListener, TcpStream},
-    thread,
-    time::Duration,
+    // time::Duration,
     env
 };
 
 const VERSION: &str = "PRE01";
+struct Color {
+    cyan: String,
+    red: String,
+    reset: String
+}
 
 fn main() {
     let port: u16 = env::var("API_PORT")
@@ -20,17 +24,29 @@ fn main() {
         .and_then(|v| v.parse::<u8>().ok())
         .unwrap_or(4);
 
-    println!("Backend Deployment Service v{VERSION}");
+    let mut c = Color {
+        cyan: Default::default(),
+        red: Default::default(),
+        reset: Default::default()
+    };
+
+    if std::io::stdout().is_terminal() {
+        c.cyan = String::from("\x1b[1;36m");
+        c.red = String::from("\x1b[31m");
+        c.reset = String::from("\x1b[0m");
+    };
+
+    println!("{}Backend Deployment Service{} v{VERSION}", c.cyan, c.reset);
 
     let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
     let pool = ThreadPool::new(threads.into());
-    println!("Server started listening on: 127.0.0.1:{port} | Running on {threads} threads");
+    println!("{}Server started listening on{}: 127.0.0.1:{port} | Running on {}{threads}{} threads", c.cyan, c.reset, c.red, c.reset);
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
         pool.execute(|| {
-            handle_connection(stream);
+             handle_connection(stream);
         });
     }
 
@@ -42,10 +58,9 @@ fn handle_connection(mut stream: TcpStream) {
     let request: Vec<_> = buf_reader
         .lines()
         .map(|result| result.unwrap())
-        //.take_while(|line| !line.is_empty())
+        // .take_while(|line| !line.is_empty())
         .collect();
     let request_line: &String = &request[0];
-    println!("{request:?}");
 
     let (status_line, contents) = if request_line.starts_with("PUT ") {
         let content_length: usize = header_value("Content-Length", request.clone()).parse().expect("No contents found.");
@@ -55,11 +70,10 @@ fn handle_connection(mut stream: TcpStream) {
             assembled += &request[i+6];
         };
 
-        println!("Assembled data: {assembled}");
         ("HTTP/1.1 200 OK", "OK")
-    } else if request_line.starts_with("SLEEP ") {
-        thread::sleep(Duration::from_secs(5));
-        ("HTTP/1.1 200 OK", "SLEEPED")
+    // } else if request_line.starts_with("SLEEP ") {
+    //     thread::sleep(Duration::from_secs(5));
+    //     ("HTTP/1.1 200 OK", "SLEEPED")
     } else {
         ("HTTP/1.1 405 METHOD NOT ALLOWED", "405 METHOD NOT ALLOWED")
     };
