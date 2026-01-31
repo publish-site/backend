@@ -11,3 +11,5 @@ Please use the Docker image.
 ## Credits
 
 * Thanks to Rust for providing a web server tutorial in their [book](https://doc.rust-lang.org/book/)
+* Thanks to [spring boot on medium](https://medium.com/spring-boot/speed-up-docker-builds-in-github-actions-with-caching-f178cf12d5ba) for showing me how I can implement caching
+* Thanks to stackoverflow
