@@ -1,10 +1,17 @@
+#![feature(core_float_math)]
+
 use backend::ThreadPool;
 use std::{
     io::{BufReader, prelude::*, IsTerminal},
+    fs,
     net::{TcpListener, TcpStream},
     // time::Duration,
-    env
+    env,
+    process::Command
 };
+use core::f64;
+use flate2::read::GzDecoder;
+use tar::Archive;
 
 const VERSION: &str = "PRE01";
 #[derive(Clone, Copy)]
@@ -24,6 +31,8 @@ fn main() {
         .ok()
         .and_then(|v| v.parse::<u8>().ok())
         .unwrap_or(4);
+    
+    let dir = env::var("DIR").ok().unwrap_or("/var/www/html".to_string());
 
     let c = if std::io::stdout().is_terminal() {
         Color {
@@ -47,16 +56,16 @@ fn main() {
 
     for stream in listener.incoming() {
         let stream = stream.unwrap();
-
+        let path = dir.clone();
         pool.execute(move || {
-             handle_connection(stream, c);
+             handle_connection(stream, path, c);
         });
     }
 
     println!("Shutting down.");
 }
 
-fn handle_connection(mut stream: TcpStream, c: Color) {
+fn handle_connection(mut stream: TcpStream, path: String, c: Color) {
     let buf_reader = BufReader::new(&stream);
     let request: Vec<_> = buf_reader
         .lines()
@@ -67,11 +76,25 @@ fn handle_connection(mut stream: TcpStream, c: Color) {
 
     let (status_line, contents) = if request_line.starts_with("PUT ") {
         let content_length: usize = header_value("Content-Length", request.clone()).parse().expect("No contents found."); // implement default content len 0
+        if content_length > 0 {
+            let mut assembled: String = Default::default();
+            let chunks: usize = f64::math::ceil((content_length/78+1) as f64) as usize;
+            for i in 0..chunks {
+                assembled += &request[i+6];
+            };
+            
+            fs::write("/tmp/site.tar.gz.b64", assembled);
+            Command::new("bash")
+                .args(["-c", format!("base64 -d /tmp/site.tar.gz.b64 > /tmp/site.tar.gz").as_str()])
+                .output()
+                .expect("failed to execute process");
 
-        let mut assembled: String = Default::default();
-        for i in 0..content_length/78 {
-            assembled += &request[i+6];
-        };
+            let file = fs::File::open("/tmp/site.tar.gz").unwrap();
+            let file = BufReader::new(file);
+            let file = GzDecoder::new(file);
+            let mut arc = Archive::new(file);
+            arc.unpack(path);
+        }
         let agent = header_value("User-Agent", request.clone());
         println!("{}User Agent{}: {agent}", c.cyan, c.reset);
         ("HTTP/1.1 200 OK", "OK")
