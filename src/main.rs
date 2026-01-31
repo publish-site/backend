@@ -7,10 +7,11 @@ use std::{
 };
 
 const VERSION: &str = "PRE01";
+#[derive(Clone, Copy)]
 struct Color {
-    cyan: String,
-    red: String,
-    reset: String
+    cyan: &'static str,
+    red: &'static str,
+    reset: &'static str
 }
 
 fn main() {
@@ -24,16 +25,18 @@ fn main() {
         .and_then(|v| v.parse::<u8>().ok())
         .unwrap_or(4);
 
-    let mut c = Color {
-        cyan: Default::default(),
-        red: Default::default(),
-        reset: Default::default()
-    };
-
-    if std::io::stdout().is_terminal() {
-        c.cyan = String::from("\x1b[1;36m");
-        c.red = String::from("\x1b[31m");
-        c.reset = String::from("\x1b[0m");
+    let c = if std::io::stdout().is_terminal() {
+        Color {
+            cyan: "\x1b[1;36m",
+            red: "\x1b[31m",
+            reset: "\x1b[0m",
+        }
+    } else {
+        Color {
+            cyan: "",
+            red: "",
+            reset: "",
+        }
     };
 
     println!("{}Backend Deployment Service{} v{VERSION}", c.cyan, c.reset);
@@ -45,15 +48,15 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        pool.execute(|| {
-             handle_connection(stream);
+        pool.execute(move || {
+             handle_connection(stream, c);
         });
     }
 
     println!("Shutting down.");
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn handle_connection(mut stream: TcpStream, c: Color) {
     let buf_reader = BufReader::new(&stream);
     let request: Vec<_> = buf_reader
         .lines()
@@ -63,13 +66,14 @@ fn handle_connection(mut stream: TcpStream) {
     let request_line: &String = &request[0];
 
     let (status_line, contents) = if request_line.starts_with("PUT ") {
-        let content_length: usize = header_value("Content-Length", request.clone()).parse().expect("No contents found.");
+        let content_length: usize = header_value("Content-Length", request.clone()).parse().expect("No contents found."); // implement default content len 0
 
         let mut assembled: String = Default::default();
         for i in 0..content_length/78 {
             assembled += &request[i+6];
         };
-
+        let agent = header_value("User-Agent", request.clone());
+        println!("{}User Agent{}: {agent}", c.cyan, c.reset);
         ("HTTP/1.1 200 OK", "OK")
     // } else if request_line.starts_with("SLEEP ") {
     //     thread::sleep(Duration::from_secs(5));
