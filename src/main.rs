@@ -7,11 +7,23 @@ use hyper::server::conn::http1;
 use hyper_util::rt::TokioIo;
 use hyper::service::service_fn;
 use hyper::{Method, Request, Response, StatusCode};
-use tokio::net::TcpListener;
+use tokio::{
+    net::TcpListener,
+    
+    process::Command
+};
 
+use tar::Archive;
+
+use flate2::read::GzDecoder;
 use std::{
     //collections::HashMap,
     str,
+    io::BufReader,
+    fs::{
+        DirBuilder,
+        File
+    },
     env,
     convert::Infallible,
     net::SocketAddr,
@@ -52,8 +64,37 @@ async fn param_example(
         (&Method::GET, "/") => Ok(Response::new(full(INDEX))),
         (&Method::POST, "/") => {
             // Concatenate the body...
-            let b = req.collect().await?.to_bytes();
-            println!("{:?}", str::from_utf8(&b).unwrap());
+            // let b = req..clone().collect().await?.to_bytes();
+            // println!("{:?}", str::from_utf8(&b).unwrap());
+            
+            let assembled = match req.into_body().collect().await {
+                Ok(c) => c,
+                Err(err) => {
+                    println!("failed to read body: {:?}", err);
+                    return Ok(Default::default());
+                }
+            };
+
+            let bytes = assembled.to_bytes();
+
+            const TEMPDIR: &str = "/tmp/backend-action";
+            DirBuilder::new()
+                .recursive(true)
+                .create(format!("{TEMPDIR}/site")).unwrap();
+
+            tokio::fs::write(format!("{TEMPDIR}/site.tar.gz.b64"), bytes).await;
+
+            Command::new("bash")
+                .args(["-c", format!("base64 -d {TEMPDIR}/site.tar.gz.b64 > {TEMPDIR}/site.tar.gz").as_str()])
+                .output().await;
+
+            let file = File::open(format!("{TEMPDIR}/site.tar.gz")).unwrap();
+            let file = BufReader::new(file);
+            let file = GzDecoder::new(file);
+            let mut arc = Archive::new(file);
+
+            arc.unpack("/tmp/backend-action/site");
+
             // Parse the request body. form_urlencoded::parse
             // always succeeds, but in general parsing may
             // fail (for example, an invalid post of json), so
