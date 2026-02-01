@@ -10,6 +10,7 @@ use hyper::{Method, Request, Response, StatusCode};
 use tokio::net::TcpListener;
 
 use std::collections::HashMap;
+use std::str;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 
@@ -24,6 +25,7 @@ async fn param_example(
         (&Method::POST, "/") => {
             // Concatenate the body...
             let b = req.collect().await?.to_bytes();
+            println!("{:?}", str::from_utf8(&b));
             // Parse the request body. form_urlencoded::parse
             // always succeeds, but in general parsing may
             // fail (for example, an invalid post of json), so
