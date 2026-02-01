@@ -4,5 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-flate2 = "1.1.8"
+hyper = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+http-body-util = "0.1"
+bytes = "1"
+tokio-util = "0.7.18"
+hyper-util = { version = "0.1.19", features = ["tokio"] }
 tar = "0.4.44"
+flate2 = "1.1.8"
