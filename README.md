@@ -45,9 +45,12 @@ This should be the structure of the certificates:
 Configuration is located at the [wiki](https://github.com/publish-site/backend/wiki). Are you looking for the [actions workflow](https://github.com/publish-site/action)?
 
 ## TO DO:
-* Configure docker image
-* Add signal handling
-* Download file and extract
+High Priority
+* Configure NGINX in docker image
+
+Low priority
+* Logging
+* Documentation
 
 ## Credits
 
