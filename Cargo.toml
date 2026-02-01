@@ -12,3 +12,8 @@ tokio-util = "0.7.18"
 hyper-util = { version = "0.1.19", features = ["tokio"] }
 tar = "0.4.44"
 flate2 = "1.1.8"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true 
