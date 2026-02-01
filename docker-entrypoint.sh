@@ -7,6 +7,10 @@ if [ -z "$API_URL" ]; then
   exit 1
 fi
 
+eval "cat <<EOF
+$(< /config.conf)
+EOF" > /etc/nginx/conf.d/config.conf
+
 mkdir -p /etc/nginx/ssl
 
 # ENV vars set when starting docker.
