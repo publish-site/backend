@@ -15,4 +15,4 @@ COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
 ENV WEB_PATH=/var/www/html
 
-ENTRYPOINT bash /docker-entrypoint.sh
+ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]

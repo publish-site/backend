@@ -24,6 +24,10 @@ if [ -n "$PRIVKEY" ]; then
   echo "Private key set."
 fi
 
+if [ -n "$CLIENT_CA" ]; then
+  echo "$CLIENT_CA" | base64 -d > /etc/nginx/ssl/ca.pem
+fi
+
 # Generate certs
 #if [ ! -f /etc/nginx/ssl/fullchain.pem ] && [ ! -f /etc/nginx/ssl/privkey.pem ]; then
 #fi
