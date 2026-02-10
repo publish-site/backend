@@ -4,6 +4,7 @@
 
 use bytes::Bytes;
 use http_body_util::{combinators::BoxBody, BodyExt, Empty, Full};
+use hyper::header::USER_AGENT;
 use hyper::server::conn::http1;
 use hyper_util::rt::TokioIo;
 use hyper::service::service_fn;
@@ -53,35 +54,39 @@ async fn param_example(
     req: Request<hyper::body::Incoming>,
 ) -> Result<Response<BoxBody<Bytes, Infallible>>, hyper::Error> {
     let c = color(); // Kinda bad
-    println!("{}User-Agent: {}{:#?} {}Method: {}{}", c.cyan, c.reset, req.headers().get("User-Agent").unwrap(), c.cyan, c.reset, req.method());
+    println!("{}User-Agent: {}{:#?} {}Method: {}{}", c.cyan, c.reset, req.headers().get(USER_AGENT).unwrap(), c.cyan, c.reset, req.method());
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/") => Ok(Response::new(full(INDEX))),
         (&Method::POST, "/") => {
-            let assembled = match req.into_body().collect().await {
-                Ok(c) => c,
-                Err(err) => {
-                    println!("failed to read body: {:?}", err);
-                    return Ok(Default::default());
-                }
-            };
-
-            let bytes = assembled.to_bytes();
             let output: &str = &env::var("WEB_PATH")
                 .unwrap_or("/tmp/backend-action/site".to_string());
+            if req.headers().get(USER_AGENT).and_then(|v| v.to_str().ok()) != Some("DRY") {
+                let assembled = match req.into_body().collect().await {
+                    Ok(c) => c,
+                    Err(err) => {
+                        println!("failed to read body: {:?}", err);
+                        return Ok(Default::default());
+                    }
+                };
 
-            DirBuilder::new()
-                .recursive(true)
-                .create(output).unwrap();
+                let bytes = assembled.to_bytes();
 
-            let file = BASE64_STANDARD.decode(bytes).unwrap();
-            let file = bufread::GzDecoder::new(&file[..]);
-            let mut arc = Archive::new(file);
-            arc.unpack(output).match {
-                Ok(()) => println!("{}Wrote received files to{} {output}", c.cyan, c.reset),
-                Err(e) => println!("{}", e)
+                DirBuilder::new()
+                    .recursive(true)
+                    .create(output).unwrap();
+
+                let file = BASE64_STANDARD.decode(bytes).unwrap();
+                let file = bufread::GzDecoder::new(&file[..]);
+                let mut arc = Archive::new(file);
+                arc.unpack(output).match {
+                    Ok(()) => { println!("{}Wrote received files to{} {output}", c.cyan, c.reset); 
+                    Ok(Response::new(full(format!("Wrote received files to {output}")))) },
+                    Err(e) => { println!("{}", e);
+                    Ok(Response::new(full("Something went wrong with your request."))) }
+                }
+            } else {
+                Ok(Response::new(full("Dry run enabled.")))
             }
-
-            Ok(Response::new(empty()))
         }
         _ => Ok(Response::builder()
             .status(StatusCode::NOT_FOUND)
