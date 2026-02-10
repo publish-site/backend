@@ -46,11 +46,15 @@ Configuration is located at the [wiki](https://github.com/publish-site/backend/w
 
 ## TO DO:
 High Priority
-* Configure NGINX in docker image
+* Implement PUT upload file
 
 Low priority
 * Logging
 * Documentation
+* Add optional features to container such as PHP support
+
+Research
+* Possibility of pivoting to a PHP-based backend instead of rust and investigate downsides and upsides with it
 
 ## Credits
 
