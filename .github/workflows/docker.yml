@@ -51,6 +51,6 @@ jobs:
           context: .
           push: true
           platforms: ${{ inputs.platform }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository_owner }}/backend:${{ inputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
