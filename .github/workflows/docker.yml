@@ -2,6 +2,24 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Which tag to be published at"
+        default: 'latest'
+        required: true
+        type: choice
+        options:
+          - latest
+          - unstable
+      platform:
+        description: "Platforms to publish to"
+        default: 'linux/amd64,linux/arm64'
+        required: true
+        type: choice
+        options:
+          - linux/amd64
+          - linux/arm64
+          - linux/amd64,linux/arm64
 
 permissions:
   packages: write
@@ -32,7 +50,7 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner }}/backend:latest
+          platforms: ${{ inputs.platform }}
+          tags: ghcr.io/${{ github.repository_owner }}/{{ github.repository }}:${{ inputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
