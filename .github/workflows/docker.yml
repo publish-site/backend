@@ -17,7 +17,9 @@ on:
         required: true
         type: choice
         options:
-          - 
+          - linux/amd64
+          - linux/arm64
+          - linux/amd64,linux/arm64
 
 permissions:
   packages: write
