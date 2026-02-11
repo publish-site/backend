@@ -35,5 +35,5 @@ fi
 #if [ ! -f /etc/nginx/ssl/fullchain.pem ] && [ ! -f /etc/nginx/ssl/privkey.pem ]; then
 #fi
 
-sudo -u nginx "backend &"
+backend &
 exec nginx -g "daemon off;"
