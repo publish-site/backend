@@ -29,7 +29,7 @@ if [ -n "$CLIENT_CA" ]; then
 fi
 
 if ! [ -n "$BODY_SIZE" ]; then
-  export BODY=2000M
+  export BODY_SIZE=2000M
 fi
 # Generate certs
 #if [ ! -f /etc/nginx/ssl/fullchain.pem ] && [ ! -f /etc/nginx/ssl/privkey.pem ]; then
