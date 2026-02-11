@@ -28,6 +28,9 @@ if [ -n "$CLIENT_CA" ]; then
   echo "$CLIENT_CA" | base64 -d > /etc/nginx/ssl/ca.pem
 fi
 
+if ! [ -n "$BODY_SIZE" ]; then
+  export BODY=2000M
+fi
 # Generate certs
 #if [ ! -f /etc/nginx/ssl/fullchain.pem ] && [ ! -f /etc/nginx/ssl/privkey.pem ]; then
 #fi
