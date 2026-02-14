@@ -50,7 +50,7 @@ fn color() -> Color {
 
 
 // Using service_fn, we can turn this function into a `Service`.
-async fn param_example(
+async fn handler(
     req: Request<hyper::body::Incoming>,
 ) -> Result<Response<BoxBody<Bytes, Infallible>>, hyper::Error> {
     let c = color(); // Kinda bad
@@ -123,7 +123,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
         tokio::task::spawn(async move {
             if let Err(err) = http1::Builder::new()
-                .serve_connection(io, service_fn(param_example))
+                .serve_connection(io, service_fn(handler))
                 .await
             {
                 println!("Error serving connection: {:?}", err);
