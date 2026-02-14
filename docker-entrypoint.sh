@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export PORT="${PORT:-443}"
+export BODY_SIZE="${BODY_SIZE:-2000M}"
 
 if [ -z "$API_URL" ]; then
   echo "Error: API_URL environment variable is required."
@@ -28,12 +29,6 @@ if [ -n "$CLIENT_CA" ]; then
   echo "$CLIENT_CA" | base64 -d > /etc/nginx/ssl/ca.pem
 fi
 
-if ! [ -n "$BODY_SIZE" ]; then
-  export BODY_SIZE=2000M
-fi
-# Generate certs
-#if [ ! -f /etc/nginx/ssl/fullchain.pem ] && [ ! -f /etc/nginx/ssl/privkey.pem ]; then
-#fi
-
 backend &
-exec nginx -g "daemon off;"
+
+nginx -g "daemon off;"
