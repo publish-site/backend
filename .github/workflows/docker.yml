@@ -3,14 +3,6 @@ name: Build and Push Docker Image
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: "Which tag to be published at"
-        default: 'latest'
-        required: true
-        type: choice
-        options:
-          - latest
-          - unstable
       platform:
         description: "Platforms to publish to"
         default: 'linux/amd64,linux/arm64'
@@ -48,9 +40,9 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v4
         with:
-          context: .
           push: true
+          file: Dockerfile.alpine
           platforms: ${{ inputs.platform }}
-          tags: ghcr.io/${{ github.repository }}:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository }}:alpine
           cache-from: type=gha
           cache-to: type=gha,mode=max
