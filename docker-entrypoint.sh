@@ -4,9 +4,10 @@ export PORT="${PORT:-443}"
 export BODY_SIZE="${BODY_SIZE:-2000M}"
 
 cleanup() {
+  while -0 kill "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
+    sleep 0.1
+  done
   kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
-  wait "$BACKEND_PID" 2>/dev/null
-  wait "$NGINX_PID" 2>/dev/null
   exit 0
 }
 
@@ -17,10 +18,7 @@ if [ -z "$API_URL" ]; then
   exit 1
 fi
 
-eval "cat <<EOF
-$(< /config.conf)
-EOF" > /etc/nginx/conf.d/config.conf
-
+envsubst "\$API_URL \$BODY_SIZE \$PORT" < /config.conf > /etc/nginx/conf.d/config.conf
 mkdir -p /etc/nginx/ssl
 
 # ENV vars set when starting docker.
@@ -44,8 +42,9 @@ BACKEND_PID=$!
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
-wait -n
+while kill -0 "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
+  sleep 0.1
+done
 
 kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
-wait "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
 exit 1

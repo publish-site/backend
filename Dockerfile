@@ -6,7 +6,7 @@ COPY src ./src
 RUN cargo build --release 
 
 FROM nginx:stable
-RUN apt update && apt install tini
+RUN apt-get update && apt-get install -y tini gettext-base
 RUN rm -f /etc/nginx/conf.d/default.conf
 RUN mkdir /var/www/html -p
 RUN chown -R nginx:nginx /var/www

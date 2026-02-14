@@ -43,6 +43,17 @@ jobs:
           push: true
           file: Dockerfile.alpine
           platforms: ${{ inputs.platform }}
-          tags: ghcr.io/${{ github.repository }}:alpine
+          tags: |
+            ghcr.io/${{ github.repository }}:alpine
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          platforms: ${{ inputs.platform }}
+          tags: ghcr.io/${{ github.repository }}:debian
           cache-from: type=gha
           cache-to: type=gha,mode=max
