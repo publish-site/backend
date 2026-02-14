@@ -6,6 +6,7 @@ COPY src ./src
 RUN cargo build --release 
 
 FROM nginx:stable
+RUN apt update && apt install tini
 RUN rm -f /etc/nginx/conf.d/default.conf
 RUN mkdir /var/www/html -p
 RUN chown -R nginx:nginx /var/www
@@ -15,4 +16,4 @@ COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
 ENV WEB_PATH=/var/www/html
 
-ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]

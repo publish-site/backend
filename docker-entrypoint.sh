@@ -3,6 +3,15 @@
 export PORT="${PORT:-443}"
 export BODY_SIZE="${BODY_SIZE:-2000M}"
 
+cleanup() {
+  kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
+  wait "$BACKEND_PID" 2>/dev/null
+  wait "$NGINX_PID" 2>/dev/null
+  exit 0
+}
+
+trap cleanup SIGTERM SIGINT
+
 if [ -z "$API_URL" ]; then
   echo "Error: API_URL environment variable is required."
   exit 1
@@ -30,5 +39,13 @@ if [ -n "$CLIENT_CA" ]; then
 fi
 
 backend &
+BACKEND_PID=$!
 
-nginx -g "daemon off;"
+nginx -g "daemon off;" &
+NGINX_PID=$!
+
+wait -n
+
+kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
+wait "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
+exit 1
