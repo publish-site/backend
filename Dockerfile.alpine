@@ -4,7 +4,7 @@ WORKDIR /app
 COPY Cargo.toml ./
 COPY src ./src
 RUN cargo build --release 
-RUN apk install --no-cache upx
+RUN apk add --no-cache upx
 RUN upx --best --lzma target/release/backend
 
 FROM nginx:alpine-slim
