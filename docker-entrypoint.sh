@@ -4,14 +4,11 @@ export PORT="${PORT:-443}"
 export BODY_SIZE="${BODY_SIZE:-2000M}"
 
 cleanup() {
-  while kill -0 "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
-    sleep 0.1
-  done
   kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
   exit 0
 }
 
-trap cleanup SIGTERM SIGINT
+trap cleanup SIGTERM SIGINT SIGKILL SIGQUIT
 
 if [ -z "$API_URL" ]; then
   echo "Error: API_URL environment variable is required."
@@ -42,7 +39,7 @@ BACKEND_PID=$!
 nginx -g "daemon off;" &
 NGINX_PID=$!
 
-while kill -0 "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
+while kill -0 "$BACKEND_PID" 2>/dev/null || kill -0 "$NGINX_PID" 2>/dev/null; do
   sleep 0.1
 done
 
