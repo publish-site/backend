@@ -4,7 +4,7 @@ export PORT="${PORT:-443}"
 export BODY_SIZE="${BODY_SIZE:-2000M}"
 
 cleanup() {
-  while -0 kill "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
+  while kill -0 "$BACKEND_PID" | kill -0 "$NGINX_PID" 2>/dev/null; do
     sleep 0.1
   done
   kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
