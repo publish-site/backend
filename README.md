@@ -16,6 +16,8 @@ You can access a small demo [here](https://publish-site.rvid.eu/demo/). If you w
 
 ## Deployment
 
+<img width="1550" height="232" alt="image" src="https://github.com/user-attachments/assets/78bf28bf-9078-470c-82ce-12f4073bd4ca" />
+
 You should go to the [quick start guide](https://publish-site.rvid.eu/quick-start). 
 ```yaml { .copy }
 services:
