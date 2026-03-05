@@ -48,7 +48,18 @@ jobs:
             ghcr.io/${{ github.repository }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
+      - name: PHP image
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          file: Dockerfile.alpine.php
+          platforms: ${{ inputs.platform }}
+          tags: |
+            ghcr.io/${{ github.repository }}:alpine-php
+            ghcr.io/${{ github.repository }}:php
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
       - name: debian image
         uses: docker/build-push-action@v4
         with:

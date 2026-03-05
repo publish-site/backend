@@ -14,7 +14,16 @@ if [ -z "$LOCATION" ]; then
   export LOCATION='/api'
 fi
 
-envsubst "\$API_URL \$BODY_SIZE \$PORT" < /config.conf > /etc/nginx/conf.d/config.conf
+if [ "$PHP" = "true" ]; then
+  export EXTRA='location ~ \.php$ {
+    include fastcgi_params;
+    fastcgi_pass 127.0.0.1:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }'
+fi
+
+envsubst "\$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
 mkdir -p /etc/nginx/ssl
 
 # ENV vars set when starting docker.
