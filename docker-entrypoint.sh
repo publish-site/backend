@@ -10,9 +10,8 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT SIGKILL SIGQUIT
 
-if [ -z "$API_URL" ]; then
-  echo "Error: API_URL environment variable is required."
-  exit 1
+if [ -z "$LOCATION" ]; then
+  export LOCATION='/api'
 fi
 
 envsubst "\$API_URL \$BODY_SIZE \$PORT" < /config.conf > /etc/nginx/conf.d/config.conf
