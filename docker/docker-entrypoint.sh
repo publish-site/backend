@@ -15,6 +15,9 @@ if [ -z "$API_URL" ]; then
   exit 1
 fi
 
+API_HOST=$(echo "$API_URL" | sed -E 's#^https?://##; s#/$##')
+export API_HOST
+
 if [ "$PHP" = "true" ]; then
   export EXTRA='location ~ \.php$ {
     include fastcgi_params;
@@ -25,7 +28,7 @@ if [ "$PHP" = "true" ]; then
   php-fpm84 -F &
 fi
 
-envsubst "\$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
+envsubst "\$API_HOST \$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
 mkdir -p /etc/nginx/ssl
 
 # ENV vars set when starting docker.
