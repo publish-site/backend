@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: docker/Dockerfile.alpine
+          file: Dockerfile.alpine
           platforms: ${{ inputs.platform }}
           tags: |
             ghcr.io/${{ github.repository }}:alpine
@@ -52,7 +52,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: docker/Dockerfile.alpine.php
+          file: Dockerfile.alpine.php
           platforms: ${{ inputs.platform }}
           tags: |
             ghcr.io/${{ github.repository }}:alpine-php
@@ -64,7 +64,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: docker/Dockerfile.debian
+          file: Dockerfile.debian
           platforms: ${{ inputs.platform }}
           tags: ghcr.io/${{ github.repository }}:debian
           cache-from: type=gha
