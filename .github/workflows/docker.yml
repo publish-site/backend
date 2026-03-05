@@ -44,6 +44,7 @@ jobs:
         with:
           push: true
           file: Dockerfile.alpine
+          context: docker
           platforms: ${{ inputs.platform }}
           tags: |
             ghcr.io/${{ github.repository }}:alpine
@@ -61,12 +62,14 @@ jobs:
             ghcr.io/${{ github.repository }}:php
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          context: docker
       
       - name: debian image
         uses: docker/build-push-action@v4
         with:
           push: true
           file: Dockerfile.debian
+          context: docker
           platforms: ${{ inputs.platform }}
           tags: ghcr.io/${{ github.repository }}:debian
           cache-from: type=gha
