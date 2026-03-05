@@ -11,14 +11,16 @@ use hyper::service::service_fn;
 use hyper::{Method, Request, Response, StatusCode};
 use tokio::net::TcpListener;
 
-use tar::Archive;
+use tar::{Archive, Builder};
 use base64::prelude::*;
 
-use flate2::bufread;
+use flate2::{bufread, write::GzEncoder, Compression};
 use std::{
     //collections::HashMap,
     str,
     fs::DirBuilder,
+    fs::File,
+    fs::remove_dir_all,
     env,
     convert::Infallible,
     net::SocketAddr,
@@ -69,12 +71,22 @@ async fn handler(
                     }
                 };
 
-                let bytes = assembled.to_bytes();
-
                 DirBuilder::new()
                     .recursive(true)
                     .create(output).unwrap();
+                
+                let backup = File::create(format!("{output}/../backup.tar.gz")).unwrap();
+                let enc = GzEncoder::new(backup, Compression::default());
+                let mut tar = Builder::new(enc);
+                tar.append_dir_all(".", output).unwrap();
+                tar.into_inner().unwrap().finish().unwrap();
+                remove_dir_all(output).unwrap_or(());
 
+                DirBuilder::new() // not an efficient implementation but i'm lazy
+                    .recursive(true)
+                    .create(output).unwrap();
+
+                let bytes = assembled.to_bytes();
                 let file = BASE64_STANDARD.decode(bytes).unwrap();
                 let file = bufread::GzDecoder::new(&file[..]);
                 let mut arc = Archive::new(file);
