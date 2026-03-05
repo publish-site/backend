@@ -51,6 +51,8 @@ ENV PHP=true
 COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
+COPY healthcheck.sh /healthcheck.sh
 ENV WEB_PATH=/var/www/html
 
 ENTRYPOINT ["/sbin/tini", "--", "ash", "/docker-entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD /healthcheck.sh

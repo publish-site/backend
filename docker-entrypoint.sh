@@ -10,8 +10,9 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT SIGKILL SIGQUIT
 
-if [ -z "$LOCATION" ]; then
-  export LOCATION='/api'
+if [ -z "$API_URL" ]; then
+  echo "Error: API_URL environment variable is required."
+  exit 1
 fi
 
 if [ "$PHP" = "true" ]; then
@@ -21,7 +22,7 @@ if [ "$PHP" = "true" ]; then
     fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
   }'
-  php-fpm8.4 -F &
+  php-fpm84 -F &
 fi
 
 envsubst "\$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf

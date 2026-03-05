@@ -15,5 +15,7 @@ COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
 ENV WEB_PATH=/var/www/html
+COPY healthcheck.sh /healthcheck.sh
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD /healthcheck.sh
