@@ -51,7 +51,6 @@ ENV PHP=true
 COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
-COPY www.conf /etc/php84/php-fpm.d/www.conf
 ENV WEB_PATH=/var/www/html
 
 ENTRYPOINT ["/sbin/tini", "--", "ash", "/docker-entrypoint.sh"]

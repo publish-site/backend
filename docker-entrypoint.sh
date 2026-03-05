@@ -21,6 +21,7 @@ if [ "$PHP" = "true" ]; then
     fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
   }'
+  php-fpm8.4 -F &
 fi
 
 envsubst "\$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
