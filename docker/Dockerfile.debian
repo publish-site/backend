@@ -1,8 +1,8 @@
 # build app 
 FROM rustlang/rust:nightly AS builder
 WORKDIR /app
-COPY Cargo.toml ./
-COPY src ./src
+COPY ../Cargo.toml ./
+COPY ../src ./src
 RUN cargo build --release 
 
 FROM nginx:stable

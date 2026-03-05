@@ -1,8 +1,8 @@
 # build app 
 FROM rustlang/rust:nightly-alpine AS builder
 WORKDIR /app
-COPY Cargo.toml ./
-COPY src ./src
+COPY ../Cargo.toml ./
+COPY ../src ./src
 RUN cargo build --release 
 RUN apk add --no-cache upx
 RUN upx --best --lzma target/release/backend
