@@ -2,6 +2,7 @@
 
 if [ -n "$SSH" ]; then
   ssh-keygen -A
+  chmod 600 /etc/ssh/ssh_host_*
   echo "Port 2222
 Protocol 2
 PermitRootLogin yes
