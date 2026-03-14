@@ -1,60 +1,48 @@
 #!/bin/bash
 
-export PORT="${PORT:-443}"
-export BODY_SIZE="${BODY_SIZE:-2000M}"
+if [ -n "$SSH" ]; then
+  ssh-keygen -A
+  echo "Port 22
+Protocol 2
+PermitRootLogin yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+ChallengeResponseAuthentication no
+PubkeyAuthentication yes
+SyslogFacility AUTH
+LogLevel VERBOSE" > /etc/ssh/sshd_config
+  echo "$SSH" > /root/.ssh/authorized_keys
+  chmod 600 /root/.ssh/authorized_keys
+else
+  echo "No SSH key found, exiting"
+  exit 1
+fi
 
 cleanup() {
-  kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
+  pkill -TERM nginx
+  pkill -TERM php-fpm84
+  pkill -TERM sshd
   exit 0
 }
 
 trap cleanup SIGTERM SIGINT SIGKILL SIGQUIT
 
-if [ -z "$API_URL" ]; then
-  echo "Error: API_URL environment variable is required."
-  exit 1
-fi
-
-API_HOST=$(echo "$API_URL" | sed -E 's#^https?://##; s#/$##')
-export API_HOST
-
 if [ "$PHP" = "true" ]; then
-  export EXTRA='location ~ \.php$ {
+  export EXTRA="$EXTRA
+  location ~ \.php$ {
     include fastcgi_params;
     fastcgi_pass 127.0.0.1:9000;
     fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-  }'
+    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+  }"
   php-fpm84 -F &
 fi
 
-envsubst "\$API_HOST \$API_URL \$BODY_SIZE \$PORT \$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
+/usr/sbin/sshd -D -e &
+
+envsubst "\$LOCATION \$EXTRA" < /config.conf > /etc/nginx/conf.d/config.conf
 mkdir -p /etc/nginx/ssl
 
-# ENV vars set when starting docker.
-if [ -n "$FULLCHAIN" ]; then
-  echo "$FULLCHAIN" | base64 -d > /etc/nginx/ssl/fullchain.pem
-  echo "Fullchain certificate set."
-fi
-
-if [ -n "$PRIVKEY" ]; then
-  echo "$PRIVKEY" | base64 -d > /etc/nginx/ssl/privkey.pem
-  echo "Private key set."
-fi
-
-if [ -n "$CLIENT_CA" ]; then
-  echo "$CLIENT_CA" | base64 -d > /etc/nginx/ssl/ca.pem
-fi
-
-backend &
-BACKEND_PID=$!
-
-nginx -g "daemon off;" &
-NGINX_PID=$!
-
-while kill -0 "$BACKEND_PID" 2>/dev/null || kill -0 "$NGINX_PID" 2>/dev/null; do
-  sleep 0.1
-done
-
-kill -TERM "$BACKEND_PID" "$NGINX_PID" 2>/dev/null
+nginx -g "daemon off;"
+pkill -TERM -P $$
 exit 1

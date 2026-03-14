@@ -1,12 +1,3 @@
-# build app 
-FROM rustlang/rust:nightly-alpine AS builder
-WORKDIR /app
-COPY ../Cargo.toml ./
-COPY ../src ./src
-RUN cargo build --release 
-RUN apk add --no-cache upx
-RUN upx --best --lzma target/release/backend
-
 FROM nginx:alpine-slim
 RUN apk --no-cache add \
         php84 \
@@ -40,15 +31,15 @@ RUN apk --no-cache add \
         php84-zip \
         php84-zlib \
         tini \
-        base64
+        openssh-server
 
 RUN rm -f /etc/nginx/conf.d/default.conf
+RUN mkdir /root/.ssh
 RUN mkdir /var/www/html -p
 RUN chown -R nginx:nginx /var/www
 
 ENV PHP=true
 
-COPY --from=builder /app/target/release/backend /usr/local/bin/backend
 COPY docker-entrypoint.sh /
 COPY config.conf /config.conf
 COPY healthcheck.sh /healthcheck.sh
