@@ -31,7 +31,8 @@ RUN apk --no-cache add \
         php84-zip \
         php84-zlib \
         tini \
-        openssh-server
+        openssh-server \
+        rsync
 
 RUN rm -f /etc/nginx/conf.d/default.conf
 RUN mkdir /root/.ssh

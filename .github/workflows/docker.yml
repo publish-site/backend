@@ -59,13 +59,3 @@ jobs:
             ghcr.io/${{ github.repository }}:php
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      
-      - name: debian image
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          file: Dockerfile.debian
-          platforms: ${{ inputs.platform }}
-          tags: ghcr.io/${{ github.repository }}:debian
-          cache-from: type=gha
-          cache-to: type=gha,mode=max

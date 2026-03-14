@@ -5,9 +5,9 @@ services:
       dockerfile: Dockerfile.alpine.php
     ports: 
       - 127.0.0.1:8080:8080/tcp
-      - 127.0.0.1:2222:22/tcp
+      - 127.0.0.1:2222:2222/tcp
     volumes:
       - ./html:/var/www/html
       - ./ssh:/etc/ssh/ # SSH Host Keys
     environment:
-        SSH: "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKN8Z9XiQg4n26JXB23QXEwFLAzZufd1SZOBb17rL3UMmSCH950i+97/GBrnAIniabLFJV8I6nHhQxY49YSLLBE="
+        SSH: "ecdsa-sha2-nistp256 aaaae2vjzhnhlxnoytitbmlzdhayntyaaaaibmlzdhayntyaaabbbkn8z9xiqg4n26jxb23qxewflazzufd1szobb17rl3ummsch950i+97/gbrnainiablfjv8i6nhhqxy49ysllbe="

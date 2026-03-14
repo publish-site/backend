@@ -2,7 +2,7 @@
 
 if [ -n "$SSH" ]; then
   ssh-keygen -A
-  echo "Port 22
+  echo "Port 2222
 Protocol 2
 PermitRootLogin yes
 PasswordAuthentication no

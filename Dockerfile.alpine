@@ -1,5 +1,5 @@
 FROM nginx:alpine-slim
-RUN apk add --no-cache tini base64 openssh-server
+RUN apk add --no-cache tini base64 openssh-server rsync
 
 RUN mkdir /root/.ssh
 RUN mkdir /var/www/html -p
