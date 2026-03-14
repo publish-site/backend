@@ -20,7 +20,7 @@ You should go to the [quick start guide](https://publish-site.rvid.eu/quick-star
 
 ## Limitations
 
-* None?
+* None? Create an issue if you find any. Contact me if you find a vulnerability at [git@rvid.eu](mailto:git@rvid.eu)
 
 ## License
 
